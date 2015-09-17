@@ -1,15 +1,15 @@
 /**
 	Click and drag to arrange selection into a grid layout, dragging adjusts the grid knot distance.
 **/
-(	
+(
 	fn simpleGridLayout objArray origin dist rows=
 	(
 		theGrid = #()
 		columns = ceil (objArray.count / (rows as Float))
-			
+
 		offsetX = rows * dist / 2
 		offsetY = columns * dist / 2
-			
+
 		for r = 0 to (rows-1) do
 		(
 			for c = 0 to (columns-1) do
@@ -17,19 +17,19 @@
 				append theGrid [origin.x + r * dist - offsetY, origin.y + c * dist - offsetY, origin.z + 0]
 			)--end for
 		)--end for
-		
+
 		for o = 1 to objArray.count do
 		(
 			objArray[o].pos = theGrid[o]
 		)--end for
 	)--end fn
-	
+
 	tool foo
 	(
 
 		local startPos = false
 		local startPosScreen
-		
+
 		fn drawCircle origin radius startAngle endAngle step clr=
 		(
 			points = #()
@@ -40,39 +40,39 @@
 				p = [x,y,0]
 				append points p
 			)--end
-			
+
 			for j=1 to (points.count-1) do
 			(
 				gw.wPolyline #(points[j], points[j+1]) false rgb:#(clr,clr)
-			)--end for	
+			)--end for
 		)--end fn
-		
+
 		fn drawRubberBandForScaling=
 		(
 			gw.wPolyline #(startPosScreen, [mouse.pos.x, mouse.pos.y, 0]) false color:#(yellow, yellow)
 			drawCircle startPosScreen ((distance startPosScreen [mouse.pos.x, mouse.pos.y, 0]) / 3) 0 360 3 red
 			drawCircle [mouse.pos.x, mouse.pos.y, 0] 10 0 360 3 red
-			
+
 			gw.enlargeUpdateRect #whole
 			gw.updateScreen()
 			redrawViews()
 		)--end fn
-		
+
 		on mousePoint clickno do
 		(
-			if clickno == 1 then 
+			if clickno == 1 then
 			(
-				startPos = [worldpoint.x, worldPoint.y, worldPoint.z] 
+				startPos = [worldpoint.x, worldPoint.y, worldPoint.z]
 				startPosScreen = [mouse.pos.x, mouse.pos.y, 0]
 				registerRedrawViewsCallback drawRubberBandForScaling
 			)
-			else 
+			else
 			(
 				unregisterRedrawViewsCallback drawRubberBandForScaling
 				#stop
 			)--end else
 		)--end on
-		on mouseMove clickno do 
+		on mouseMove clickno do
 		(
 			if startPos != false AND selection.count > 0 do
 			(
@@ -82,5 +82,5 @@
 		on stop do unregisterRedrawViewsCallback drawRubberBandForScaling
 	)--end tool
 	startTool foo
-	
+
 )-- end LOCAL
