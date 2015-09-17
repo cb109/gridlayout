@@ -1,6 +1,13 @@
-/**
-	Click and drag to arrange selection into a grid layout, dragging adjusts the grid knot distance.
-**/
+/***A mouse tool to organize scene objects.
+
+Select all objects you want to lay out. Execute this script, then click
+the left mouse button and drag until you have the desired result.
+Dragging away from the initial point will increase the distance between
+objects.
+
+Written by Christoph Buelter
+
+***/
 (
 	fn simpleGridLayout objArray origin dist rows=
 	(
