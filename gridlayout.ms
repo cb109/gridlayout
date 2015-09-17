@@ -1,6 +1,6 @@
-/***A mouse tool to organize scene objects.
+/***A mouse tool to layout scene objects in an organized way.
 
-Select all objects you want to lay out. Execute this script, then click
+Select all objects you want to position. Execute this script, then click
 the left mouse button and drag until you have the desired result.
 Dragging away from the initial point will increase the distance between
 objects.
@@ -9,17 +9,20 @@ objects.
 
 ***/
 (
-	fn simple_grid_layout obj_array origin dist rows =
-	(
+	fn simple_grid_layout obj_array origin dist rows = (
+		/***Arranges the given objects in a flat rectangular grid.***/
 		local the_grid = #()
-		local columns = ceil (obj_array.count / (rows as Float))
+		local columns = ceil (obj_array.count / (rows as float))
 
 		local offset_x = rows * dist / 2
 		local offset_y = columns * dist / 2
 
 		for r = 0 to (rows - 1) do (
 			for c = 0 to (columns - 1) do (
-				append the_grid [origin.x + r * dist - offset_y, origin.y + c * dist - offset_y, origin.z + 0]
+				local x = origin.x + r * dist - offset_y
+				local y = origin.y + c * dist - offset_y
+				local z = origin.z + 0
+				append the_grid [x, y, z]
 			)
 		)
 
@@ -28,12 +31,13 @@ objects.
 		)
 	)
 
-	tool foo (
+	tool gridlayout_tool (
 
 		local start_pos = false
 		local start_pos_screen
 
 		fn draw_circle origin radius start_angle end_angle step = (
+			/***Draws a circle into the viewport.***/
 			local points = #()
 			for i in start_angle to end_angle by step do (
 				local x = origin.x + radius * sin i
@@ -47,12 +51,19 @@ objects.
 		)
 
 		fn draw_rubber_band_for_scaling = (
+			/***Draws two circles and a line that visualize the current
+			grid distance defined by the mouse drag distance.***/
+			local mousepoint = [mouse.pos.x, mouse.pos.y, 0]
+			local dist = distance start_pos_screen mousepoint
+			local inner_circle_radius = dist / 3
+			local outter_circle_radius = 6
+
 			gw.setColor #line yellow
-			gw.wPolyline #(start_pos_screen, [mouse.pos.x, mouse.pos.y, 0]) false
+			gw.wPolyline #(start_pos_screen, mousepoint) false
 
 			gw.setColor #line red
-			draw_circle start_pos_screen ((distance start_pos_screen [mouse.pos.x, mouse.pos.y, 0]) / 3) 0 360 3
-			draw_circle [mouse.pos.x, mouse.pos.y, 0] 10 0 360 3
+			draw_circle start_pos_screen inner_circle_radius 0 360 3
+			draw_circle mousepoint outter_circle_radius 0 360 3
 
 			gw.enlargeUpdateRect #whole
 			gw.updateScreen()
@@ -60,27 +71,37 @@ objects.
 		)
 
 		on mousePoint clickno do (
-			if clickno == 1 then (
+			/***Triggered when clicking the mouse.***/
+			local first_click = clickno == 1
+			if first_click then (
+				-- Set initial values and register drawing callback.
 				start_pos = [worldpoint.x, worldpoint.y, worldpoint.z]
 				start_pos_screen = [mouse.pos.x, mouse.pos.y, 0]
 				registerRedrawViewsCallback draw_rubber_band_for_scaling
 			)
 			else (
+				-- Stop the mouse tool.
 				unregisterRedrawViewsCallback draw_rubber_band_for_scaling
 				#stop
 			)
 		)
 
 		on mouseMove clickno do (
-			if start_pos != false AND selection.count > 0 do (
-				simple_grid_layout (selection as Array) start_pos (distance start_pos worldpoint) (ceil(sqrt (selection as Array).count))
+			/***Triggered when moving the mouse.***/
+			local start_pos_not_empty = start_pos != false
+			local something_selected = selection.count > 0
+			if start_pos_not_empty and something_selected do (
+				local world_dist = distance start_pos worldpoint
+				local numrows = ceil(sqrt (selection as array).count)
+				simple_grid_layout selection start_pos world_dist numrows
 			)
 		)
 
 		on stop do (
+			-- Make sure the callback is removed.
 			unregisterRedrawViewsCallback draw_rubber_band_for_scaling
 		)
 	)
 
-	startTool foo
+	startTool gridlayout_tool
 )
