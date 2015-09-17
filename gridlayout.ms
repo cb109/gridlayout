@@ -33,7 +33,7 @@ objects.
 		local start_pos = false
 		local start_pos_screen
 
-		fn draw_circle origin radius start_angle end_angle step clr = (
+		fn draw_circle origin radius start_angle end_angle step = (
 			local points = #()
 			for i in start_angle to end_angle by step do (
 				local x = origin.x + radius * sin i
@@ -43,13 +43,16 @@ objects.
 			)
 
 			for j = 1 to (points.count - 1) do
-				gw.wPolyline #(points[j], points[j + 1]) false rgb:#(clr, clr)
+				gw.wPolyline #(points[j], points[j + 1]) false
 		)
 
 		fn draw_rubber_band_for_scaling = (
-			gw.wPolyline #(start_pos_screen, [mouse.pos.x, mouse.pos.y, 0]) false color:#(yellow, yellow)
-			draw_circle start_pos_screen ((distance start_pos_screen [mouse.pos.x, mouse.pos.y, 0]) / 3) 0 360 3 red
-			draw_circle [mouse.pos.x, mouse.pos.y, 0] 10 0 360 3 red
+			gw.setColor #line yellow
+			gw.wPolyline #(start_pos_screen, [mouse.pos.x, mouse.pos.y, 0]) false
+
+			gw.setColor #line red
+			draw_circle start_pos_screen ((distance start_pos_screen [mouse.pos.x, mouse.pos.y, 0]) / 3) 0 360 3
+			draw_circle [mouse.pos.x, mouse.pos.y, 0] 10 0 360 3
 
 			gw.enlargeUpdateRect #whole
 			gw.updateScreen()
