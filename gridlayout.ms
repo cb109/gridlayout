@@ -5,37 +5,37 @@ the left mouse button and drag until you have the desired result.
 Dragging away from the initial point will increase the distance between
 objects.
 
-Written by Christoph Buelter
+(c) Christoph Buelter, 11/2012
 
 ***/
 (
-	fn simpleGridLayout objArray origin dist rows =
+	fn simple_grid_layout obj_array origin dist rows =
 	(
-		local theGrid = #()
-		local columns = ceil (objArray.count / (rows as Float))
+		local the_grid = #()
+		local columns = ceil (obj_array.count / (rows as Float))
 
-		local offsetX = rows * dist / 2
-		local offsetY = columns * dist / 2
+		local offset_x = rows * dist / 2
+		local offset_y = columns * dist / 2
 
 		for r = 0 to (rows - 1) do (
 			for c = 0 to (columns - 1) do (
-				append theGrid [origin.x + r * dist - offsetY, origin.y + c * dist - offsetY, origin.z + 0]
+				append the_grid [origin.x + r * dist - offset_y, origin.y + c * dist - offset_y, origin.z + 0]
 			)
 		)
 
-		for o = 1 to objArray.count do (
-			objArray[o].pos = theGrid[o]
+		for o = 1 to obj_array.count do (
+			obj_array[o].pos = the_grid[o]
 		)
 	)
 
 	tool foo (
 
-		local startPos = false
-		local startPosScreen
+		local start_pos = false
+		local start_pos_screen
 
-		fn drawCircle origin radius startAngle endAngle step clr = (
+		fn draw_circle origin radius start_angle end_angle step clr = (
 			local points = #()
-			for i in startAngle to endAngle by step do (
+			for i in start_angle to end_angle by step do (
 				local x = origin.x + radius * sin i
 				local y = origin.y + radius * cos i
 				local p = [x, y, 0]
@@ -46,10 +46,10 @@ Written by Christoph Buelter
 				gw.wPolyline #(points[j], points[j + 1]) false rgb:#(clr, clr)
 		)
 
-		fn drawRubberBandForScaling = (
-			gw.wPolyline #(startPosScreen, [mouse.pos.x, mouse.pos.y, 0]) false color:#(yellow, yellow)
-			drawCircle startPosScreen ((distance startPosScreen [mouse.pos.x, mouse.pos.y, 0]) / 3) 0 360 3 red
-			drawCircle [mouse.pos.x, mouse.pos.y, 0] 10 0 360 3 red
+		fn draw_rubber_band_for_scaling = (
+			gw.wPolyline #(start_pos_screen, [mouse.pos.x, mouse.pos.y, 0]) false color:#(yellow, yellow)
+			draw_circle start_pos_screen ((distance start_pos_screen [mouse.pos.x, mouse.pos.y, 0]) / 3) 0 360 3 red
+			draw_circle [mouse.pos.x, mouse.pos.y, 0] 10 0 360 3 red
 
 			gw.enlargeUpdateRect #whole
 			gw.updateScreen()
@@ -58,24 +58,24 @@ Written by Christoph Buelter
 
 		on mousePoint clickno do (
 			if clickno == 1 then (
-				startPos = [worldpoint.x, worldPoint.y, worldPoint.z]
-				startPosScreen = [mouse.pos.x, mouse.pos.y, 0]
-				registerRedrawViewsCallback drawRubberBandForScaling
+				start_pos = [worldpoint.x, worldpoint.y, worldpoint.z]
+				start_pos_screen = [mouse.pos.x, mouse.pos.y, 0]
+				registerRedrawViewsCallback draw_rubber_band_for_scaling
 			)
 			else (
-				unregisterRedrawViewsCallback drawRubberBandForScaling
+				unregisterRedrawViewsCallback draw_rubber_band_for_scaling
 				#stop
 			)
 		)
 
 		on mouseMove clickno do (
-			if startPos != false AND selection.count > 0 do (
-				simpleGridLayout (selection as Array) startPos (distance startPos worldpoint) (ceil(sqrt (selection as Array).count))
+			if start_pos != false AND selection.count > 0 do (
+				simple_grid_layout (selection as Array) start_pos (distance start_pos worldpoint) (ceil(sqrt (selection as Array).count))
 			)
 		)
 
 		on stop do (
-			unregisterRedrawViewsCallback drawRubberBandForScaling
+			unregisterRedrawViewsCallback draw_rubber_band_for_scaling
 		)
 	)
 
