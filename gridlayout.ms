@@ -11,11 +11,11 @@ Written by Christoph Buelter
 (
 	fn simpleGridLayout objArray origin dist rows =
 	(
-		theGrid = #()
-		columns = ceil (objArray.count / (rows as Float))
+		local theGrid = #()
+		local columns = ceil (objArray.count / (rows as Float))
 
-		offsetX = rows * dist / 2
-		offsetY = columns * dist / 2
+		local offsetX = rows * dist / 2
+		local offsetY = columns * dist / 2
 
 		for r = 0 to (rows - 1) do (
 			for c = 0 to (columns - 1) do (
@@ -34,11 +34,11 @@ Written by Christoph Buelter
 		local startPosScreen
 
 		fn drawCircle origin radius startAngle endAngle step clr = (
-			points = #()
+			local points = #()
 			for i in startAngle to endAngle by step do (
-				x = origin.x + radius * sin i
-				y = origin.y + radius * cos i
-				p = [x, y, 0]
+				local x = origin.x + radius * sin i
+				local y = origin.y + radius * cos i
+				local p = [x, y, 0]
 				append points p
 			)
 
@@ -46,7 +46,7 @@ Written by Christoph Buelter
 				gw.wPolyline #(points[j], points[j + 1]) false rgb:#(clr, clr)
 		)
 
-		fn drawRubberBandForScaling= (
+		fn drawRubberBandForScaling = (
 			gw.wPolyline #(startPosScreen, [mouse.pos.x, mouse.pos.y, 0]) false color:#(yellow, yellow)
 			drawCircle startPosScreen ((distance startPosScreen [mouse.pos.x, mouse.pos.y, 0]) / 3) 0 360 3 red
 			drawCircle [mouse.pos.x, mouse.pos.y, 0] 10 0 360 3 red
@@ -56,8 +56,7 @@ Written by Christoph Buelter
 			redrawViews()
 		)
 
-		on mousePoint clickno do
-		(
+		on mousePoint clickno do (
 			if clickno == 1 then (
 				startPos = [worldpoint.x, worldPoint.y, worldPoint.z]
 				startPosScreen = [mouse.pos.x, mouse.pos.y, 0]
